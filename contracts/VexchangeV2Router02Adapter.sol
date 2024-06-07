@@ -1,32 +1,28 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity >=0.6.2 <0.7.0;
+pragma solidity =0.6.6;
 
-import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
+// import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import { IVexchangeV2Router02 } from "./interfaces/IVexchangeV2Router02.sol";
 
 /**
  * @title Vexchange V2 Router Adapter
  * @notice Wrapper around the Vexchange Router V2 contract exposing the original Uniswap V2 Router Interface.
  */
-contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
+contract VexchangeV2Router02Adapter /*is IUniswapV2Router02*/ {
 
     IVexchangeV2Router02 public immutable vex;
-    address public immutable override factory;
-    address public immutable override WETH;
 
-    constructor(address vex_) {
+    constructor(address vex_) public {
         vex = IVexchangeV2Router02(vex_);
-        factory = vex.factory();
-        WETH = vex.VVET();
     }
 
-    // function factory() external pure returns (address) {
-    //     return vex.factory();
-    // }
+    function factory() external view returns (address) {
+        return vex.factory();
+    }
 
-    // function WETH() external pure returns (address) {
-    //     return vex.VVET();
-    // }
+    function WETH() external view returns (address) {
+        return vex.VVET();
+    }
 
     // **** ADD LIQUIDITY ****
     function addLiquidity(
@@ -38,7 +34,7 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
         uint amountBMin,
         address to,
         uint deadline
-    ) external virtual override returns (uint amountA, uint amountB, uint liquidity) {
+    ) external returns (uint amountA, uint amountB, uint liquidity) {
         return vex.addLiquidity(
             tokenA,
             tokenB,
@@ -58,7 +54,7 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
         uint amountETHMin,
         address to,
         uint deadline
-    ) external virtual override payable returns (uint amountToken, uint amountETH, uint liquidity) {
+    ) external payable returns (uint amountToken, uint amountETH, uint liquidity) {
         return vex.addLiquidityVET(
             token,
             amountTokenDesired,
@@ -78,7 +74,7 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
         uint amountBMin,
         address to,
         uint deadline
-    ) public virtual override returns (uint amountA, uint amountB) {
+    ) public returns (uint amountA, uint amountB) {
         return vex.removeLiquidity(
             tokenA,
             tokenB,
@@ -97,7 +93,7 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
         uint amountETHMin,
         address to,
         uint deadline
-    ) public virtual override returns (uint amountToken, uint amountETH) {
+    ) public returns (uint amountToken, uint amountETH) {
         return vex.removeLiquidityVET(
             token,
             liquidity,
@@ -117,7 +113,7 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
         address to,
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external virtual override returns (uint amountA, uint amountB) {
+    ) external returns (uint amountA, uint amountB) {
         return vex.removeLiquidityWithPermit(
             tokenA,
             tokenB,
@@ -138,7 +134,7 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
         address to,
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external virtual override returns (uint amountToken, uint amountETH) {
+    ) external returns (uint amountToken, uint amountETH) {
         return vex.removeLiquidityVETWithPermit(
             token,
             liquidity,
@@ -158,7 +154,7 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
         uint amountETHMin,
         address to,
         uint deadline
-    ) public virtual override returns (uint amountETH) {
+    ) public returns (uint amountETH) {
         return vex.removeLiquidityVETSupportingFeeOnTransferTokens(
             token,
             liquidity,
@@ -177,7 +173,7 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
         address to,
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external virtual override returns (uint amountETH) {
+    ) external returns (uint amountETH) {
         return vex.removeLiquidityVETWithPermitSupportingFeeOnTransferTokens(
             token,
             liquidity,
@@ -196,7 +192,7 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
         address[] calldata path,
         address to,
         uint deadline
-    ) external virtual override returns (uint[] memory amounts) {
+    ) external returns (uint[] memory amounts) {
         return vex.swapExactTokensForTokens(
             amountIn,
             amountOutMin,
@@ -212,7 +208,7 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
         address[] calldata path,
         address to,
         uint deadline
-    ) external virtual override returns (uint[] memory amounts) {
+    ) external returns (uint[] memory amounts) {
         return vex.swapTokensForExactTokens(
             amountOut,
             amountInMax,
@@ -224,8 +220,6 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
 
     function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
         external
-        virtual
-        override
         payable
         returns (uint[] memory amounts)
     {
@@ -239,8 +233,6 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
 
     function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
         external
-        virtual
-        override
         returns (uint[] memory amounts)
     {
         return vex.swapTokensForExactVET(
@@ -254,8 +246,6 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
 
     function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
         external
-        virtual
-        override
         returns (uint[] memory amounts)
     {
         return vex.swapExactTokensForVET(
@@ -269,8 +259,6 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
 
     function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
         external
-        virtual
-        override
         payable
         returns (uint[] memory amounts)
     {
@@ -289,7 +277,7 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
         address[] calldata path,
         address to,
         uint deadline
-    ) external virtual override {
+    ) external {
         vex.swapExactTokensForTokensSupportingFeeOnTransferTokens(
             amountIn,
             amountOutMin,
@@ -306,8 +294,6 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
         uint deadline
     )
         external
-        virtual
-        override
         payable
     {
         vex.swapExactVETForTokensSupportingFeeOnTransferTokens(
@@ -326,8 +312,6 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
         uint deadline
     )
         external
-        virtual
-        override
     {
         vex.swapExactTokensForVETSupportingFeeOnTransferTokens(
             amountIn,
@@ -339,15 +323,13 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
     }
 
     // **** LIBRARY FUNCTIONS ****
-    function quote(uint amountA, uint reserveA, uint reserveB) public pure virtual override returns (uint amountB) {
+    function quote(uint amountA, uint reserveA, uint reserveB) public view returns (uint amountB) {
         return vex.quote(amountA, reserveA, reserveB);
     }
 
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut)
         public
         view
-        virtual
-        override
         returns (uint amountOut)
     {
         uint swapFee = 200; // TODO: can we get this from a pair or factory?
@@ -357,8 +339,6 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
     function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut)
         public
         view
-        virtual
-        override
         returns (uint amountIn)
     {
         uint swapFee = 200; // TODO: can we get this from a pair or factory?
@@ -368,8 +348,6 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
     function getAmountsOut(uint amountIn, address[] memory path)
         public
         view
-        virtual
-        override
         returns (uint[] memory amounts)
     {
         return vex.getAmountsOut(amountIn, path);
@@ -378,8 +356,6 @@ contract VexchangeV2Router02Adapter is IUniswapV2Router02 {
     function getAmountsIn(uint amountOut, address[] memory path)
         public
         view
-        virtual
-        override
         returns (uint[] memory amounts)
     {
         return vex.getAmountsIn(amountOut, path);
