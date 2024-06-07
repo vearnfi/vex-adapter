@@ -31,6 +31,9 @@ const config: HardhatUserConfig = {
         },
       },
       {
+        version: '0.5.17',
+      },
+      {
         version: '0.5.16',
       },
       {
@@ -38,6 +41,9 @@ const config: HardhatUserConfig = {
       },
       {
         version: '0.4.24',
+      },
+      {
+        version: '0.4.23',
       },
     ],
   },
