@@ -1,0 +1,49 @@
+{
+  "name": "@vearnfi/contract",
+  "scripts": {
+    "test": "npx hardhat test --network vechain_solo",
+    "gas": "REPORT_GAS=true npx hardhat test --network vechain_solo",
+    "build": "hardhat compile",
+    "format": "prettier --write .",
+    "coverage": "npx hardhat coverage --testfiles 'test/*.ts' --network vechain_solo",
+    "typechain": "npx hardhat typechain",
+    "solhint": "npx solhint 'contracts/VexchangeV2Router02Adapter.sol'",
+    "slither": "slither .",
+    "aderyn": "aderyn",
+    "deploy:testnet": "npx hardhat run scripts/deploy-testnet.ts --network vechain_testnet",
+    "deploy:mainnet": "npx hardhat run scripts/deploy.ts --network vechain_mainnet"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.4",
+    "@nomicfoundation/hardhat-ethers": "^3.0.5",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.4",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.17",
+    "@vechain/hardhat-ethers": "^0.1.8",
+    "@vechain/hardhat-vechain": "^0.1.8",
+    "@vechain/hardhat-web3": "^0.1.8",
+    "@vechain/web3-providers-connex": "^1.1.2",
+    "chai": "^4.4.1",
+    "ethers": "^6.11.0",
+    "hardhat": "^2.19.5",
+    "hardhat-gas-reporter": "^1.0.10",
+    "solidity-coverage": "^0.8.7",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "@uniswap/v2-core": "^1.0.1",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0",
+    "dotenv": "^16.0.3"
+  }
+}
