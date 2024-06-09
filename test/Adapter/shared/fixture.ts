@@ -115,6 +115,7 @@ export async function fixture() {
     wvetAddr,
     baseGasPrice,
     factory,
+    factoryAddr,
     router,
     routerAddr,
     // pair,
