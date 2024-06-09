@@ -4,16 +4,8 @@ import type { HardhatUserConfig } from 'hardhat/config'
 import '@nomicfoundation/hardhat-toolbox'
 import '@vechain/hardhat-vechain'
 import '@vechain/hardhat-ethers'
+import 'hardhat-contract-sizer'
 import { VECHAIN_URL_SOLO } from '@vechain/hardhat-vechain'
-
-// const { subtask } = require('hardhat/config')
-// const { TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS } = require('hardhat/builtin-tasks/task-names')
-
-// subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(async (_: any, __: any, runSuper: any) => {
-//   const paths = await runSuper()
-
-//   return paths.filter((p) => !p.includes('.t.sol'))
-// })
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -26,7 +18,7 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 2,
+            runs: 200,
           },
         },
       },
@@ -35,6 +27,12 @@ const config: HardhatUserConfig = {
       },
       {
         version: '0.5.16',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
       },
       {
         version: '0.5.0',

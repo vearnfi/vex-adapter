@@ -1,11 +1,11 @@
 import { ethers } from 'hardhat'
 import type { AddressLike } from 'ethers'
 import { expect } from 'chai'
-// import { ENERGY_CONTRACT_ADDRESS, PARAMS_CONTRACT_ADDRESS, SUPPORTED_DEXS_COUNT } from '../../../constants'
-import { UniswapV2Factory, UniswapV2Pair, UniswapV2Router02 } from '../../../typechain-types'
+import { ENERGY_CONTRACT_ADDRESS, PARAMS_CONTRACT_ADDRESS } from '../../../constants'
+import { Energy, Params, VexchangeV2Factory, VexchangeV2Pair, VexchangeV2Router02 } from '../../../typechain-types'
 import * as energyArtifact from '../../../artifacts/contracts/vechain/Energy.sol/Energy.json'
 import * as paramsArtifact from '../../../artifacts/contracts/vechain/Params.sol/Params.json'
-import * as pairArtifact from '../../../artifacts/contracts/vexchange/v2-core/UniswapV2Pair.sol/UniswapV2Pair.json'
+import * as pairArtifact from '../../../artifacts/contracts/vexchange/vexchange-v2-core/contracts/VexchangeV2Pair.sol/VexchangeV2Pair.json'
 import { expandTo18Decimals } from './expand-to-18-decimals'
 import { approveEnergy } from './approve-energy'
 
@@ -13,7 +13,7 @@ const { getSigners, getContractFactory, Contract, ZeroAddress, MaxUint256, provi
 
 export async function fixture() {
   // NOTE: these account run out of gas the more we run tests! Fix!
-  const [god, owner, keeper, alice, bob] = await getSigners()
+  const [god, alice, bob] = await getSigners()
 
   const energy = new Contract(ENERGY_CONTRACT_ADDRESS, energyArtifact.abi, god) as unknown as Energy
   const energyAddr = await energy.getAddress()
@@ -32,93 +32,69 @@ export async function fixture() {
   const baseGasPrice = (await params.get(baseGasPriceKey)) as bigint
   // ^ baseGasPrice is 1e^15, 2 orders of magnitude higher than on live networks
 
-  const VVET9 = await getContractFactory('VVET9', god)
-  const vvet9 = await VVET9.deploy()
-  const vvet9Addr = await vvet9.getAddress()
+  const WVET = await getContractFactory('WVET', god)
+  const wvet = await WVET.deploy()
+  const wvetAddr = await wvet.getAddress()
 
-  expect(await provider.getCode(vvet9Addr)).not.to.have.length(0)
+  expect(await provider.getCode(wvetAddr)).not.to.have.length(0)
 
-  const factories: UniswapV2Factory[] = []
-  const routers: UniswapV2Router02[] = [] // TODO: typescript enforce length = 2
-  const routersAddr: AddressLike[] = []
+  const Factory = await getContractFactory('VexchangeV2Factory', god)
+  const factory = await Factory.deploy(200, 5000, god.address, god.address)
+  const factoryAddr = await factory.getAddress()
 
-  for (let i = 0; i < SUPPORTED_DEXS_COUNT; i++) {
-    const Factory = await getContractFactory('UniswapV2Factory', god)
-    const factory = await Factory.deploy(god.address, vvet9Addr)
-    const factoryAddr = await factory.getAddress()
+  expect(await provider.getCode(factoryAddr)).not.to.have.length(0)
 
-    expect(await provider.getCode(factoryAddr)).not.to.have.length(0)
+  const Router = await getContractFactory('VexchangeV2Router02', god)
+  const router = await Router.deploy(factoryAddr, wvetAddr)
+  const routerAddr = await router.getAddress()
 
-    const Router = await getContractFactory('UniswapV2Router02', god)
-    const router = await Router.deploy(factoryAddr, vvet9Addr)
-    const routerAddr = await router.getAddress()
-    routersAddr.push(routerAddr)
+  expect(await provider.getCode(routerAddr)).not.to.have.length(0)
 
-    expect(await provider.getCode(routerAddr)).not.to.have.length(0)
+  const Adapter = await getContractFactory('VexchangeV2Router02Adapter', god)
+  const adapter = await Adapter.deploy(routerAddr)
+  const adapterAddr = await adapter.getAddress()
 
-    factories.push(factory)
-    routers.push(router)
-  }
+  expect(await provider.getCode(adapterAddr)).not.to.have.length(0)
 
-  const Trader = await getContractFactory('Trader', owner)
-  const trader = await Trader.deploy(vvet9Addr, routersAddr as [AddressLike, AddressLike])
-  const traderAddr = await trader.getAddress()
+  // Create WVET-VTHO pair
+  // const tx1 = await factory.createPair(energyAddr, wvetAddr)
+  // await tx1.wait(1)
 
-  expect(await provider.getCode(traderAddr)).not.to.have.length(0)
+  // const pairAddress = await factory.getPair(energyAddr, wvetAddr)
 
-  // Set Trader contract keeper
-  const tx0 = await trader.connect(owner).addKeeper(keeper.address)
-  await tx0.wait(1)
+  // const pair = new Contract(pairAddress, pairArtifact.abi, god) as unknown as VexchangeV2Pair
 
-  expect(await trader.isKeeper(keeper.address)).to.equal(true)
+  // expect(await provider.getCode(pair.getAddress())).not.to.have.length(0)
 
-  for (let i = 0; i < SUPPORTED_DEXS_COUNT; i++) {
-    const factory = factories[i]
-    const router = routers[i]
-    const routerAddr = routersAddr[i]
+  // const reserves = await pair.getReserves()
+  // expect(reserves[0]).to.equal(0)
+  // expect(reserves[1]).to.equal(0)
 
-    // Create VVET9-VTHO pair
-    const tx1 = await factory.createPair(energyAddr, vvet9Addr)
-    await tx1.wait(1)
+  // // Provide liquidity with a 1 WVET - 20 VTHO exchange rate
+  // await approveEnergy(energy, god, routerAddr, MaxUint256)
 
-    const pairAddress = await factory.getPair(energyAddr, vvet9Addr)
+  // const token0Amount = expandTo18Decimals(20000) // energy/vtho
+  // const token1Amount = expandTo18Decimals(1000) // wvet
 
-    const pair = new Contract(pairAddress, pairArtifact.abi, god) as unknown as UniswapV2Pair
+  // const addLiquidityTx = await router.connect(god).addLiquidityVET(
+  //   energyAddr, // token
+  //   token0Amount, // amountTokenDesired
+  //   0, // amountTokenMin
+  //   0, // amountETHMin,
+  //   god.address, // to: recipient of the liquidity tokens
+  //   MaxUint256, // deadline
+  //   { value: token1Amount, gasLimit: 300000 /*hexlify(9999999) */ }
+  // )
 
-    expect(await provider.getCode(pair.getAddress())).not.to.have.length(0)
+  // await addLiquidityTx.wait()
 
-    const reserves = await pair.getReserves()
-    expect(reserves[0]).to.equal(0)
-    expect(reserves[1]).to.equal(0)
-
-    // Provide liquidity with a 1 VVET9 - 20 VTHO exchange rate
-    await approveEnergy(energy, god, routerAddr, MaxUint256)
-
-    const token0Amount = expandTo18Decimals(20000) // energy/vtho
-    const token1Amount = expandTo18Decimals(1000) // vvet9
-
-    const addLiquidityTx = await router.connect(god).addLiquidityETH(
-      energyAddr, // token
-      token0Amount, // amountTokenDesired
-      0, // amountTokenMin
-      0, // amountETHMin,
-      god.address, // to: recipient of the liquidity tokens
-      MaxUint256, // deadline
-      { value: token1Amount /*gasLimit: 30000000,*/ /*hexlify(9999999) */ }
-    )
-
-    await addLiquidityTx.wait()
-
-    // Validate reserves
-    const reserves2 = await pair.getReserves()
-    expect(reserves2[0]).to.equal(token0Amount)
-    expect(reserves2[1]).to.equal(token1Amount)
-  }
-
-  const SWAP_GAS = await trader.SWAP_GAS()
+  // // Validate reserves
+  // const reserves2 = await pair.getReserves()
+  // expect(reserves2[0]).to.equal(token0Amount)
+  // expect(reserves2[1]).to.equal(token1Amount)
 
   // Burn all VET from all test accounts in order to avoid changes in VTHO balance
-  for (const signer of [owner, keeper, alice, bob]) {
+  for (const signer of [alice, bob]) {
     const signerBalanceVET_0 = await provider.getBalance(signer.getAddress())
     const tx = await signer.sendTransaction({
       to: ZeroAddress,
@@ -131,21 +107,18 @@ export async function fixture() {
 
   return {
     god,
-    owner,
-    keeper,
     alice,
     bob,
     energy,
     energyAddr,
-    vvet9,
-    vvet9Addr,
+    wvet,
+    wvetAddr,
     baseGasPrice,
-    factories,
-    routers,
-    routersAddr,
+    factory,
+    router,
+    routerAddr,
     // pair,
-    trader,
-    traderAddr,
-    SWAP_GAS,
+    adapter,
+    adapterAddr,
   }
 }
