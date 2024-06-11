@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-pragma solidity ^0.4.23;
-// Notice: we are using solidity version 0.8.0 instead of 0.4.24
-// in order to be able to import this interface inside the Trader contract.
+pragma solidity >=0.4.23 <0.7.0;
 
 interface IEnergy {
   // @param _owner The address from which the balance will be retrieved

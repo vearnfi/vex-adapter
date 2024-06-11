@@ -7,7 +7,7 @@
     "format": "prettier --write .",
     "coverage": "npx hardhat coverage --testfiles 'test/*.ts' --network vechain_solo",
     "typechain": "npx hardhat typechain",
-    "solhint": "npx solhint 'contracts/VexchangeV2Router02Adapter.sol'",
+    "solhint": "npx solhint 'contracts/VexWrapper.sol'",
     "slither": "slither .",
     "aderyn": "aderyn",
     "deploy:testnet": "npx hardhat run scripts/deploy-testnet.ts --network vechain_testnet",

@@ -25,10 +25,10 @@ async function main() {
   const [deployer] = await ethers.getSigners()
   console.log({ deployer: await deployer.getAddress() })
 
-  const Adapter = await ethers.getContractFactory('VexchangeV2Router02Adapter')
-  const adapter = await Adapter.connect(deployer).deploy(vexAddr)
+  const VexWrapper = await ethers.getContractFactory('VexWrapper')
+  const vexWrapper = await VexWrapper.connect(deployer).deploy(vexAddr)
 
-  const receipt = await adapter.waitForDeployment()
+  const receipt = await vexWrapper.waitForDeployment()
   console.log(JSON.stringify(receipt))
 }
 

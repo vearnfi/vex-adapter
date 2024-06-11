@@ -50,11 +50,11 @@ export async function fixture() {
 
   expect(await provider.getCode(routerAddr)).not.to.have.length(0)
 
-  const Adapter = await getContractFactory('VexchangeV2Router02Adapter', god)
-  const adapter = await Adapter.deploy(routerAddr)
-  const adapterAddr = await adapter.getAddress()
+  const VexWrapper = await getContractFactory('VexWrapper', god)
+  const vexWrapper = await VexWrapper.deploy(routerAddr)
+  const vexWrapperAddr = await vexWrapper.getAddress()
 
-  expect(await provider.getCode(adapterAddr)).not.to.have.length(0)
+  expect(await provider.getCode(vexWrapperAddr)).not.to.have.length(0)
 
   // Create WVET-VTHO pair
   // const tx1 = await factory.createPair(energyAddr, wvetAddr)
@@ -119,7 +119,7 @@ export async function fixture() {
     router,
     routerAddr,
     // pair,
-    adapter,
-    adapterAddr,
+    vexWrapper,
+    vexWrapperAddr,
   }
 }

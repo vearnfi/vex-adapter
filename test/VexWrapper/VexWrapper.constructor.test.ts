@@ -4,17 +4,17 @@ import { fixture } from './shared/fixture'
 
 const { getContractFactory } = ethers
 
-describe('Adapter.constructor', function () {
+describe('VexWrapper.constructor', function () {
   it('should set the constructor args to the supplied values', async function () {
     // Arrange
     const { routerAddr, god } = await fixture()
 
     // Act
-    const Adapter = await getContractFactory('VexchangeV2Router02Adapter', god)
-    const adapter = await Adapter.deploy(routerAddr)
+    const VexWrapper = await getContractFactory('VexWrapper', god)
+    const vexWrapper = await VexWrapper.deploy(routerAddr)
 
     // Assert
-    expect(await adapter.vex()).to.equal(routerAddr)
+    expect(await vexWrapper.vex()).to.equal(routerAddr)
   })
 
   it('should revert if router address is not provided', async function () {
@@ -22,9 +22,9 @@ describe('Adapter.constructor', function () {
     const { routerAddr, god } = await fixture()
 
     // Act
-    const Adapter = await getContractFactory('VexchangeV2Router02Adapter', god)
+    const VexWrapper = await getContractFactory('VexWrapper', god)
 
     // Assert
-    await expect(Adapter.deploy()).to.be.rejectedWith('incorrect number of arguments to constructor')
+    await expect(VexWrapper.deploy()).to.be.rejectedWith('incorrect number of arguments to constructor')
   })
 })
