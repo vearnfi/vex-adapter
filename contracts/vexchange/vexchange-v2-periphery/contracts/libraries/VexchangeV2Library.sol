@@ -23,10 +23,11 @@ library VexchangeV2Library {
                 keccak256(abi.encodePacked(token0, token1)),
 
                 // Updated hard-coded hash for current VexchangeV2Pair
-                hex'597842963dd96a7950f4a0e1fc043055599d6e4e7154f8190d1ff640509e5900'
+                // hex'597842963dd96a7950f4a0e1fc043055599d6e4e7154f8190d1ff640509e5900'
+                hex'43a6b9e40a19cc4b47bcd770d59509cac46c5afd28d0065c04599b916b161e3b'
             ))));
     }
-    
+
     function getSwapFee(address factory, address tokenA, address tokenB) internal view returns (uint swapFee) {
         swapFee = IVexchangeV2Pair(pairFor(factory, tokenA, tokenB)).swapFee();
     }
@@ -72,7 +73,7 @@ library VexchangeV2Library {
         for (uint i; i < path.length - 1; i++) {
             (uint reserveIn, uint reserveOut) = getReserves(factory, path[i], path[i + 1]);
             uint swapFee = getSwapFee(factory, path[i], path[i + 1]);
-            amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut, swapFee);        
+            amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut, swapFee);
         }
     }
 
@@ -84,7 +85,7 @@ library VexchangeV2Library {
         for (uint i = path.length - 1; i > 0; i--) {
             (uint reserveIn, uint reserveOut) = getReserves(factory, path[i - 1], path[i]);
             uint swapFee = getSwapFee(factory, path[i - 1], path[i]);
-            amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut, swapFee);        
+            amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut, swapFee);
         }
     }
 }
