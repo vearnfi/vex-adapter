@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity =0.6.6;
 
-import { IEnergy } from "./interfaces/IEnergy.sol";
+// import { IEnergy } from "./interfaces/IEnergy.sol";
 import { IVexchangeV2Router02 } from "./interfaces/IVexchangeV2Router02.sol";
 
 /**
@@ -10,11 +10,11 @@ import { IVexchangeV2Router02 } from "./interfaces/IVexchangeV2Router02.sol";
  */
 contract VexWrapper {
 
-    IEnergy public constant vtho = IEnergy(0x0000000000000000000000000000456E65726779);
+    // IEnergy public constant vtho = IEnergy(0x0000000000000000000000000000456E65726779);
 
     IVexchangeV2Router02 public immutable vex;
 
-    constructor(address vex_) public {
+    constructor(address payable vex_) public {
         vex = IVexchangeV2Router02(vex_);
     }
 
@@ -24,12 +24,33 @@ contract VexWrapper {
         return vex.VVET();
     }
 
+    function factory() external view returns (address) {
+        return vex.factory();
+    }
+
+    function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
+        external
+        payable
+        returns (uint[] memory amounts)
+    {
+        (bool success, bytes memory data) = payable(vex).call{value: msg.value}(
+            abi.encodeWithSignature(
+                "swapExactVETForTokens(uint,address[],address,uint)",
+                amountOutMin, path, to, deadline
+            )
+        );
+
+        require(success, "VexWrapper: swap failed");
+
+        return abi.decode(data, (uint[]));
+    }
+
     function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
         external
         returns (uint[] memory amounts)
     {
-        // Approve vexchange for VTHO token spending in behalf of the VexWrapper.
-        require(vtho.approve(address(vex), amountIn), "VexWrapper: approve failed");
+        // Approve vexchange for token spending in behalf of the VexWrapper.
+        require(path[0].approve(address(vex), amountIn), "VexWrapper: approve failed");
 
         return vex.swapExactTokensForVET(
             amountIn,

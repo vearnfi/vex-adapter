@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-pragma solidity >=0.4.23 <0.7.0;
+pragma solidity >=0.4.23;
 
 interface IEnergy {
   // @param _owner The address from which the balance will be retrieved
