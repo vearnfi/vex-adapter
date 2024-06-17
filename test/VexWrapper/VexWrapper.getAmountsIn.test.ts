@@ -3,8 +3,8 @@ import { fixture } from './shared/fixture'
 import { expandTo18Decimals } from './shared/expand-to-18-decimals'
 import { createPairTokenVET } from './shared/create-pair-token-vet'
 
-describe('VexWrapper.getAmountsOut', function () {
-  it('should return the expected output amount', async function () {
+describe('VexWrapper.getAmountsIn', function () {
+  it('should return the expected input amount', async function () {
     // Arrange
     const { energy, energyAddr, wvetAddr, factory, router, vexWrapper, god } = await fixture()
 
@@ -19,17 +19,17 @@ describe('VexWrapper.getAmountsOut', function () {
 
     // Act
     const path = [energyAddr, wvetAddr]
-    const amountIn = expandTo18Decimals(200)
+    const amountOut = expandTo18Decimals(10) // VET
 
-    const outputs = await vexWrapper.getAmountsOut(amountIn, path)
+    const inputs = await vexWrapper.getAmountsIn(amountOut, path)
 
     // Assert
-    expect(outputs[1]).to.be.greaterThan(expandTo18Decimals(9))
-    expect(outputs[1]).to.be.lessThanOrEqual(expandTo18Decimals(10))
+    expect(inputs[0]).to.be.greaterThan(expandTo18Decimals(200))
+    expect(inputs[0]).to.be.lessThanOrEqual(expandTo18Decimals(210))
 
-    const expectedOutputs = await router.getAmountsOut(amountIn, path)
+    const expectedInputs = await router.getAmountsIn(amountOut, path)
 
-    expect(outputs[0]).to.equal(expectedOutputs[0])
-    expect(outputs[1]).to.equal(expectedOutputs[1])
+    expect(inputs[0]).to.equal(expectedInputs[0])
+    expect(inputs[1]).to.equal(expectedInputs[1])
   })
 })
