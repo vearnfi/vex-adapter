@@ -3,7 +3,7 @@ services:
   thor-solo:
     image: vechain/thor:v2.0.0
     hostname: thor-solo
-    container_name: thor-solo-vex-adapter
+    container_name: thor-solo-vex-wrapper
     environment:
       - DOCKER=1
     entrypoint:

@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity =0.6.6;
 
-// import { IEnergy } from "./interfaces/IEnergy.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { IVexchangeV2Router02 } from "./interfaces/IVexchangeV2Router02.sol";
 
 /**
@@ -9,8 +10,7 @@ import { IVexchangeV2Router02 } from "./interfaces/IVexchangeV2Router02.sol";
  * @notice Wrapper around the Vexchange Router V2 contract exposing the original Uniswap V2 Router Interface.
  */
 contract VexWrapper {
-
-    // IEnergy public constant vtho = IEnergy(0x0000000000000000000000000000456E65726779);
+    using SafeERC20 for IERC20;
 
     IVexchangeV2Router02 public immutable vex;
 
@@ -18,8 +18,6 @@ contract VexWrapper {
         vex = IVexchangeV2Router02(vex_);
     }
 
-    // TODO: how to trick the compiler so that we set this function as `pure`
-    // instead of `view` so that we match the uniswap router interface?
     function WETH() external view returns (address) {
         return vex.VVET();
     }
@@ -33,7 +31,7 @@ contract VexWrapper {
         payable
         returns (uint[] memory amounts)
     {
-        (bool success, bytes memory data) = payable(vex).call{value: msg.value}(
+        (bool success, bytes memory data) = address(vex).call{value: msg.value}(
             abi.encodeWithSignature(
                 "swapExactVETForTokens(uint,address[],address,uint)",
                 amountOutMin, path, to, deadline
@@ -49,8 +47,13 @@ contract VexWrapper {
         external
         returns (uint[] memory amounts)
     {
-        // Approve vexchange for token spending in behalf of the VexWrapper.
-        require(path[0].approve(address(vex), amountIn), "VexWrapper: approve failed");
+        IERC20 tokenIn = IERC20(path[0]);
+
+        // Transfer tokens to VexWrapper.
+        tokenIn.safeTransferFrom(msg.sender, address(this), amountIn);
+
+        // Approve Vexchange for token spending in behalf of VexWrapper.
+        require(tokenIn.approve(address(vex), amountIn), "VexWrapper: approve failed");
 
         return vex.swapExactTokensForVET(
             amountIn,
@@ -61,13 +64,19 @@ contract VexWrapper {
         );
     }
 
-    // TODO: how to trick the compiler so that we set this function as `pure`
-    // instead of `view` so that we match the uniswap router interface?
     function getAmountsOut(uint amountIn, address[] memory path)
         public
         view
         returns (uint[] memory amounts)
     {
         return vex.getAmountsOut(amountIn, path);
+    }
+
+    function getAmountsIn(uint amountOut, address[] memory path)
+        public
+        view
+        returns (uint[] memory amounts)
+    {
+        return vex.getAmountsIn(amountOut, path);
     }
 }
