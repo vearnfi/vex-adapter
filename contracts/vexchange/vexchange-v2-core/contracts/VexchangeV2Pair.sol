@@ -138,14 +138,14 @@ contract VexchangeV2Pair is IVexchangeV2Pair, VexchangeV2ERC20 {
      * in sqrt(k), the amount of liquidity in the pool, and the set variable fee in basis points.
      *
      * This function implements the equation defined in the Uniswap V2 whitepaper for calculating platform fees, on
-     * which their fee calculation implementation is based. This is a refactored form of equation 6, on page 5 of the 
+     * which their fee calculation implementation is based. This is a refactored form of equation 6, on page 5 of the
      * Uniswap whitepaper; see https://uniswap.org/whitepaper.pdf for further details.
      *
      * The specific difference between the Uniswap V2 implementation and this fee calculation is the fee variable,
      * which remains a variable with range 0-50% here, but is fixed at (1/6)% in Uniswap V2.
      *
      * The mathematical equation:
-     * If 'Fee' is the platform fee, and the previous and new values of the square-root of the invariant k, are 
+     * If 'Fee' is the platform fee, and the previous and new values of the square-root of the invariant k, are
      * K1 and K2 respectively; this equation, in the form coded here can be expressed as:
      *
      *   _sharesToIssue = totalSupply * Fee * (1 - K1/K2) / ( 1 - Fee * (1 - K1/K2) )
@@ -273,12 +273,12 @@ contract VexchangeV2Pair is IVexchangeV2Pair, VexchangeV2ERC20 {
         _safeTransfer(_token0, to, IERC20(_token0).balanceOf(address(this)).sub(reserve0));
         _safeTransfer(_token1, to, IERC20(_token1).balanceOf(address(this)).sub(reserve1));
     }
-    
+
     function recoverToken(address token) external {
         require(token != token0, "VexchangeV2: INVALID_TOKEN_TO_RECOVER");
         require(token != token1, "VexchangeV2: INVALID_TOKEN_TO_RECOVER");
         require(recoverer != address(0), "VexchangeV2: RECOVERER_ZERO_ADDRESS");
-        
+
         uint _amountToRecover = IERC20(token).balanceOf(address(this));
 
         _safeTransfer(token, recoverer, _amountToRecover);

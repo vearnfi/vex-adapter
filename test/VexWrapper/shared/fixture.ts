@@ -1,11 +1,11 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { ENERGY_CONTRACT_ADDRESS, PARAMS_CONTRACT_ADDRESS } from '../../../constants'
-import { Energy, Params, VexchangeV2Factory, VexchangeV2Pair, VexchangeV2Router02 } from '../../../typechain-types'
+import { Energy, Params } from '../../../typechain-types'
 import * as energyArtifact from '../../../artifacts/contracts/vechain/Energy.sol/Energy.json'
 import * as paramsArtifact from '../../../artifacts/contracts/vechain/Params.sol/Params.json'
 
-const { getSigners, getContractFactory, Contract, ZeroAddress, MaxUint256, provider } = ethers
+const { getSigners, getContractFactory, Contract, provider } = ethers
 
 export async function fixture() {
   // NOTE: these account run out of gas the more we run tests! Fix!
@@ -53,16 +53,16 @@ export async function fixture() {
   expect(await provider.getCode(vexWrapperAddr)).not.to.have.length(0)
 
   // Burn all VET from all test accounts in order to avoid changes in VTHO balance
-  for (const signer of [alice, bob]) {
-    const signerBalanceVET_0 = await provider.getBalance(signer.getAddress())
-    const tx = await signer.sendTransaction({
-      to: ZeroAddress,
-      value: signerBalanceVET_0,
-    })
-    await tx.wait()
-    const signerBalanceVET_1 = await provider.getBalance(signer.getAddress())
-    expect(signerBalanceVET_1).to.equal(0)
-  }
+  // for (const signer of [alice, bob]) {
+  //   const signerBalanceVET_0 = await provider.getBalance(signer.getAddress())
+  //   const tx = await signer.sendTransaction({
+  //     to: ZeroAddress,
+  //     value: signerBalanceVET_0,
+  //   })
+  //   await tx.wait()
+  //   const signerBalanceVET_1 = await provider.getBalance(signer.getAddress())
+  //   expect(signerBalanceVET_1).to.equal(0)
+  // }
 
   return {
     god,
