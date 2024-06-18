@@ -57,16 +57,16 @@ contract VexWrapper {
         );
     }
 
-    function getAmountsOut(uint amountIn, address[] memory path)
-        public
+    function getAmountsOut(uint amountIn, address[] calldata path)
+        external
         view
         returns (uint[] memory amounts)
     {
         return vex.getAmountsOut(amountIn, path);
     }
 
-    function getAmountsIn(uint amountOut, address[] memory path)
-        public
+    function getAmountsIn(uint amountOut, address[] calldata path)
+        external
         view
         returns (uint[] memory amounts)
     {
