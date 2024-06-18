@@ -6,7 +6,7 @@ import { createPairTokenVET } from './shared/create-pair-token-vet'
 
 const { MaxUint256 } = ethers
 
-describe.only('VexWrapper.swapExactETHForTokens', function () {
+describe('VexWrapper.swapExactETHForTokens', function () {
   it('should swap exact VET for VTHO', async function () {
     // Arrange
     const { energy, energyAddr, baseGasPrice, wvetAddr, factory, router, vexWrapper, god, alice } = await fixture()
