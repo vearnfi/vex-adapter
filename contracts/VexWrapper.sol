@@ -31,19 +31,9 @@ contract VexWrapper {
         payable
         returns (uint[] memory amounts)
     {
-        // (bool success, bytes memory data) = payable(vex).call{value: msg.value}(
-        //     abi.encodeWithSignature(
-        //         "swapExactVETForTokens(uint,address[],address,uint)",
-        //         amountOutMin, path, to, deadline
-        //     )
-        // );
         return vex.swapExactVETForTokens{value: msg.value}(
             amountOutMin, path, to, deadline
         );
-
-        // require(success, "VexWrapper: swap failed");
-
-        // return abi.decode(data, (uint[]));
     }
 
     function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)

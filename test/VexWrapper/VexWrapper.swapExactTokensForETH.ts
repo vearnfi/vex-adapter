@@ -7,7 +7,7 @@ import { approveToken } from './shared/approve-token'
 
 const { MaxUint256, provider } = ethers
 
-describe.only('VexWrapper.swapExactTokensForETH', function () {
+describe('VexWrapper.swapExactTokensForETH', function () {
   it('should swap exact VTHO for VET', async function () {
     // Arrange
     const { energy, energyAddr, wvetAddr, factory, router, vexWrapper, vexWrapperAddr, god, alice } = await fixture()

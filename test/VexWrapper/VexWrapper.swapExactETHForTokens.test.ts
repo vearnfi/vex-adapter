@@ -6,15 +6,18 @@ import { createPairTokenVET } from './shared/create-pair-token-vet'
 
 const { MaxUint256 } = ethers
 
-describe('VexWrapper.swapExactETHForTokens', function () {
+describe.only('VexWrapper.swapExactETHForTokens', function () {
   it('should swap exact VET for VTHO', async function () {
     // Arrange
-    const { energy, energyAddr, wvetAddr, factory, router, vexWrapper, god, alice } = await fixture()
+    const { energy, energyAddr, baseGasPrice, wvetAddr, factory, router, vexWrapper, god, alice } = await fixture()
+
+    const vetAmount = expandTo18Decimals(1000)
+    const tokenAmount = expandTo18Decimals(20000)
 
     const pair = await createPairTokenVET({
       token: energy,
-      vetAmount: expandTo18Decimals(1000),
-      tokenAmount: expandTo18Decimals(20000),
+      vetAmount,
+      tokenAmount,
       factory,
       router,
       deployer: god,
@@ -22,10 +25,13 @@ describe('VexWrapper.swapExactETHForTokens', function () {
 
     const path = [wvetAddr, energyAddr]
     const amountIn = expandTo18Decimals(10)
+
     const outputs = await router.getAmountsOut(amountIn, path)
     console.log({ outputs })
 
-    // Act
+    const aliceVTHOBalanceBefore = await energy.balanceOf(alice.address)
+
+    // // Act
     const amountOutMin = 0n
     const to = alice.address
     const deadline = MaxUint256
@@ -34,16 +40,12 @@ describe('VexWrapper.swapExactETHForTokens', function () {
     // const tx = await vexWrapper
     //   .connect(alice)
     //   .swapExactETHForTokens(amountOutMin, path, to, deadline, { value: amountIn })
-    const amounts = await tx.wait(1)
-    console.log({ amounts })
+    const receipt = await tx.wait(1)
 
     // Assert
-    // expect(amounts[1]).to.equal(outputs[1])
-    // expect(amounts[1]).to.be.lessThanOrEqual(expandTo18Decimals(10))
-
-    // const expectedOutputs = await router.getAmountsOut(amountIn, path)
-
-    // expect(amounts[0]).to.equal(expectedOutputs[0])
-    // expect(amounts[1]).to.equal(expectedOutputs[1])
+    expect(await energy.balanceOf(alice.address)).to.be.greaterThanOrEqual(
+      aliceVTHOBalanceBefore + outputs[1] - (receipt?.gasUsed || 0n) * baseGasPrice
+    )
+    // ^ we don't use strict equality because holding VET produces VTHO which increases the expected VTHO balance.
   })
 })
