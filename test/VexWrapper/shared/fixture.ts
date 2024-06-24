@@ -35,8 +35,8 @@ export async function fixture() {
   const { wvet, wvetAddr } = await deployWVET({ deployer: god })
 
   const vexchange = await deployVexchange({ deployer: god, wethAddr: wvetAddr })
-  const vexWrapper = await deployVexWrapper({ deployer: god, vexchange })
-  const vexWrapperAddr = await vexWrapper.getAddress()
+
+  const { vexWrapper, vexWrapperAddr } = await deployVexWrapper({ deployer: god, vexchange })
 
   return {
     god,
