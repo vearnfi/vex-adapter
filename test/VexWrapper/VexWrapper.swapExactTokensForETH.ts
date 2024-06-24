@@ -65,7 +65,7 @@ describe('VexWrapper.swapExactTokensForETH', function () {
     ).to.be.rejectedWith('execution reverted: builtin: insufficient allowance')
   })
 
-  it.only('should not lock the tokens if vexchange reverts', async function () {
+  it('should not lock the tokens if vexchange reverts', async function () {
     // Arrange
     const { energy, energyAddr, wvetAddr, vexchange, vexWrapper, vexWrapperAddr, alice, createVexchangePairVTHO_VET } =
       await fixture()

@@ -6,7 +6,7 @@ import { expandTo18Decimals } from './shared/expand-to-18-decimals'
 const { MaxUint256 } = ethers
 
 describe('VexWrapper.swapExactETHForTokens', function () {
-  it.only('should swap exact VET for VTHO', async function () {
+  it('should swap exact VET for VTHO', async function () {
     // Arrange
     const { energy, energyAddr, baseGasPrice, wvetAddr, vexchange, vexWrapper, alice, createVexchangePairVTHO_VET } =
       await fixture()
