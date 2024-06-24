@@ -1,4 +1,8 @@
-# Vexchange Adapter
+# Vexchange Wrapper
+
+A wrapper around the Vexchange contract exposing the original uniswap V2 interface.
+
+Testnet: 0x0bb72c2423cff281E9e7aa49b0ebb3a2D3280603
 
 ## Getting started
 
