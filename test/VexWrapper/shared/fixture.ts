@@ -4,8 +4,12 @@ import { ENERGY_CONTRACT_ADDRESS, PARAMS_CONTRACT_ADDRESS } from '../../../const
 import { Energy, Params } from '../../../typechain-types'
 import * as energyArtifact from '../../../artifacts/contracts/vechain/Energy.sol/Energy.json'
 import * as paramsArtifact from '../../../artifacts/contracts/vechain/Params.sol/Params.json'
+import { deployWVET } from './deploy-wvet'
+import { deployVexchange } from './deploy-vexchange'
+import { deployVexWrapper } from './deploy-vex-wrapper'
+import { createVexchangePairTokenVET } from './create-vexchange-pair-token-vet'
 
-const { getSigners, getContractFactory, Contract, provider } = ethers
+const { getSigners, Contract, provider } = ethers
 
 export async function fixture() {
   // NOTE: these account run out of gas the more we run tests! Fix!
@@ -28,41 +32,11 @@ export async function fixture() {
   const baseGasPrice = (await params.get(baseGasPriceKey)) as bigint
   // ^ baseGasPrice is 1e^15, 2 orders of magnitude higher than on live networks
 
-  const WVET = await getContractFactory('WVET', god)
-  const wvet = await WVET.deploy()
-  const wvetAddr = await wvet.getAddress()
+  const { wvet, wvetAddr } = await deployWVET({ deployer: god })
 
-  expect(await provider.getCode(wvetAddr)).not.to.have.length(0)
+  const vexchange = await deployVexchange({ deployer: god, wethAddr: wvetAddr })
 
-  const Factory = await getContractFactory('VexchangeV2Factory', god)
-  const factory = await Factory.deploy(200, 5000, god.address, god.address)
-  const factoryAddr = await factory.getAddress()
-
-  expect(await provider.getCode(factoryAddr)).not.to.have.length(0)
-
-  const Router = await getContractFactory('VexchangeV2Router02', god)
-  const router = await Router.deploy(factoryAddr, wvetAddr)
-  const routerAddr = await router.getAddress()
-
-  expect(await provider.getCode(routerAddr)).not.to.have.length(0)
-
-  const VexWrapper = await getContractFactory('VexWrapper', god)
-  const vexWrapper = await VexWrapper.deploy(routerAddr)
-  const vexWrapperAddr = await vexWrapper.getAddress()
-
-  expect(await provider.getCode(vexWrapperAddr)).not.to.have.length(0)
-
-  // Burn all VET from all test accounts in order to avoid changes in VTHO balance
-  // for (const signer of [alice, bob]) {
-  //   const signerBalanceVET_0 = await provider.getBalance(signer.getAddress())
-  //   const tx = await signer.sendTransaction({
-  //     to: ZeroAddress,
-  //     value: signerBalanceVET_0,
-  //   })
-  //   await tx.wait()
-  //   const signerBalanceVET_1 = await provider.getBalance(signer.getAddress())
-  //   expect(signerBalanceVET_1).to.equal(0)
-  // }
+  const { vexWrapper, vexWrapperAddr } = await deployVexWrapper({ deployer: god, vexchange })
 
   return {
     god,
@@ -73,12 +47,16 @@ export async function fixture() {
     wvet,
     wvetAddr,
     baseGasPrice,
-    factory,
-    factoryAddr,
-    router,
-    routerAddr,
-    // pair,
+    vexchange,
     vexWrapper,
     vexWrapperAddr,
+    createVexchangePairVTHO_VET: async ({ vthoAmount, vetAmount }: { vthoAmount: bigint; vetAmount: bigint }) =>
+      createVexchangePairTokenVET({
+        vexchange,
+        token: energy,
+        vetAmount,
+        tokenAmount: vthoAmount,
+        deployer: god,
+      }),
   }
 }

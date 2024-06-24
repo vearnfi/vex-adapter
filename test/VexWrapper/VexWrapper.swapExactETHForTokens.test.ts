@@ -2,44 +2,39 @@ import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { fixture } from './shared/fixture'
 import { expandTo18Decimals } from './shared/expand-to-18-decimals'
-import { createPairTokenVET } from './shared/create-pair-token-vet'
 
 const { MaxUint256 } = ethers
 
 describe('VexWrapper.swapExactETHForTokens', function () {
   it('should swap exact VET for VTHO', async function () {
     // Arrange
-    const { energy, energyAddr, baseGasPrice, wvetAddr, factory, router, vexWrapper, god, alice } = await fixture()
+    const { energy, energyAddr, baseGasPrice, wvetAddr, vexchange, vexWrapper, alice, createVexchangePairVTHO_VET } =
+      await fixture()
 
     const vetAmount = expandTo18Decimals(1000)
-    const tokenAmount = expandTo18Decimals(20000)
+    const vthoAmount = expandTo18Decimals(20000)
 
-    const pair = await createPairTokenVET({
-      token: energy,
+    const pair = await createVexchangePairVTHO_VET({
       vetAmount,
-      tokenAmount,
-      factory,
-      router,
-      deployer: god,
+      vthoAmount,
     })
 
     const path = [wvetAddr, energyAddr]
     const amountIn = expandTo18Decimals(10)
-
-    const outputs = await router.getAmountsOut(amountIn, path)
-    console.log({ outputs })
-
-    const aliceVTHOBalanceBefore = await energy.balanceOf(alice.address)
-
-    // // Act
-    const amountOutMin = 0n
+    const amountOutMin = 1n
     const to = alice.address
     const deadline = MaxUint256
 
-    const tx = await router.connect(alice).swapExactVETForTokens(amountOutMin, path, to, deadline, { value: amountIn })
-    // const tx = await vexWrapper
+    const outputs = await vexchange.router.getAmountsOut(amountIn, path)
+    const aliceVTHOBalanceBefore = await energy.balanceOf(alice.address)
+
+    // Act
+    // const tx = await vexchange.router
     //   .connect(alice)
-    //   .swapExactETHForTokens(amountOutMin, path, to, deadline, { value: amountIn })
+    //   .swapExactVETForTokens(amountOutMin, path, to, deadline, { value: amountIn })
+    const tx = await vexWrapper
+      .connect(alice)
+      .swapExactETHForTokens(amountOutMin, path, to, deadline, { value: amountIn })
     const receipt = await tx.wait(1)
 
     // Assert
