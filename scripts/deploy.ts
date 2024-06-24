@@ -20,13 +20,13 @@ async function main() {
     100009: '0x6c0a6e1d922e0e63901301573370b932ae20dadb', // mainnet
   }
 
-  const vexAddr = map[chainId]
+  const vexchangeAddr = map[chainId]
 
   const [deployer] = await ethers.getSigners()
   console.log({ deployer: await deployer.getAddress() })
 
   const VexWrapper = await ethers.getContractFactory('VexWrapper')
-  const vexWrapper = await VexWrapper.connect(deployer).deploy(vexAddr)
+  const vexWrapper = await VexWrapper.connect(deployer).deploy(vexchangeAddr)
 
   const receipt = await vexWrapper.waitForDeployment()
   console.log(JSON.stringify(receipt))

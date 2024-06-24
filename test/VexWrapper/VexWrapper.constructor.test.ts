@@ -7,19 +7,19 @@ const { getContractFactory } = ethers
 describe('VexWrapper.constructor', function () {
   it('should set the constructor args to the supplied values', async function () {
     // Arrange
-    const { routerAddr, god } = await fixture()
+    const { vexchange, god } = await fixture()
 
     // Act
     const VexWrapper = await getContractFactory('VexWrapper', god)
-    const vexWrapper = await VexWrapper.deploy(routerAddr)
+    const vexWrapper = await VexWrapper.deploy(vexchange.routerAddr)
 
     // Assert
-    expect(await vexWrapper.vex()).to.equal(routerAddr)
+    expect(await vexWrapper.vex()).to.equal(vexchange.routerAddr)
   })
 
   it('should revert if router address is not provided', async function () {
     // Arrange
-    const { routerAddr, god } = await fixture()
+    const { god } = await fixture()
 
     // Act
     const VexWrapper = await getContractFactory('VexWrapper', god)
