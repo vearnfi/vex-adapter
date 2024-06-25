@@ -3,6 +3,7 @@
 A wrapper around the Vexchange contract exposing the original uniswap V2 interface.
 
 Testnet: 0x0bb72c2423cff281E9e7aa49b0ebb3a2D3280603
+Mainnet: 0x3c3847A92B57A3163d26cc2eb22F53b33BaA34D8
 
 ## Getting started
 

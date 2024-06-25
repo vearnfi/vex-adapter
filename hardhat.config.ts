@@ -85,8 +85,10 @@ const config: HardhatUserConfig = {
     vechain_mainnet: {
       url: 'https://mainnet.veblocks.net',
       chainId: 100009,
-      // @ts-ignore
-      // privateKey: process.env.WALLET_PRIVATE_KEY,
+      accounts: {
+        mnemonic: process.env.WALLET_MNEMONIC,
+        count: 1,
+      },
       // delegateUrl: "https://sponsor-testnet.vechain.energy/by/#",
       blockGasLimit: 10000000,
     },
