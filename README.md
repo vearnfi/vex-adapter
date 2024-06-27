@@ -13,7 +13,7 @@ A wrapper around the Vexchange contract exposing the original uniswap V2 interfa
 To get started, clone the repository and set environment variables based on the provided example:
 
 ```
-git clone git@github.com:vearnfi/vex-adapter.git
+git clone git@github.com:vearnfi/vex-wrapper.git
 cd contracts
 nvm use 18
 npm i
